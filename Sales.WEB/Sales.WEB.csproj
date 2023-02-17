@@ -17,4 +17,17 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.2" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="repositories\" />
+    <None Remove="Pages\Countries\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="repositories\" />
+    <Folder Include="Pages\Countries\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sales.Shared\Sales.Shared.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
