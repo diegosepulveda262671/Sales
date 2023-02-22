@@ -17,11 +17,10 @@
         if (responseHTTP.Error)
         {
             var message = await responseHTTP.GetErrorMessageAsync();
-            await sweetAlertService.FireAsync("Error", message);
+            await sweetAlertService.FireAsync("Error", message,SweetAlertIcon.Error);
             return;
         }
-        countryForm!.FormPostedSuccessFully = true;
-        navigationManager.NavigateTo("/countries");
+        Return();
     }
 
     private void Return()

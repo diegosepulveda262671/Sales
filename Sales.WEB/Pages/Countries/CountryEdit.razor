@@ -1,0 +1,66 @@
+﻿@page "/countries/edit/{Id:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertSservice
+
+<h3>Editar País</h3>
+
+@if(country is null)
+{
+        <p>Cargando...</p>
+}
+else
+{
+        <CountryForm @ref="countryForm" Country="country" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+
+@code {
+
+    private CountryForm? countryForm;
+
+    private Country? country;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Country>($"/api/countries/{Id}");
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/countries");
+                return;
+
+            }
+            var message = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertSservice.FireAsync("Error",message,SweetAlertIcon.Error);
+
+        }
+
+        country = responseHTTP.Response;
+
+    }
+
+
+    private async Task EditAsync()
+    {
+        var responseHTTP = await repository.Put("/api/countries",country);
+        if (responseHTTP.Error)
+        {
+            var message = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertSservice.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        Return();
+    }
+    private void Return()
+    {
+        countryForm!.FormPostedSuccessFully = true;
+        navigationManager.NavigateTo("/countries");
+    }
+
+}
+
