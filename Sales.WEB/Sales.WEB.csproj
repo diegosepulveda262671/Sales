@@ -23,11 +23,13 @@
     <None Remove="Pages\Countries\" />
     <None Remove="CurrieTechnologies.Razor.SweetAlert2" />
     <None Remove="Pages\Categories\" />
+    <None Remove="Pages\states\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="repositories\" />
     <Folder Include="Pages\Countries\" />
     <Folder Include="Pages\Categories\" />
+    <Folder Include="Pages\states\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sales.Shared\Sales.Shared.csproj">
