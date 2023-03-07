@@ -1,88 +1,88 @@
-﻿@page "/categories"
-@inject IRepository repository
-@inject SweetAlertService sweetAlertService
-@inject NavigationManager navigationManager
-@using Sales.WEB.Shared
-<h3>Categorías</h3>
+﻿        @page "/categories"
+        @inject IRepository repository
+        @inject SweetAlertService sweetAlertService
+        @inject NavigationManager navigationManager
+        @using Sales.WEB.Shared
+        <h3>Categorías</h3>
 
-<a class="btn btn-primary mb-3" href="/categories/create">Nueva Categoría</a>
+        <a class="btn btn-primary mb-3" href="/categories/create">Nueva Categoría</a>
 
-<GenericList MyList="categories">
-    <Body>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Categoría</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var category in categories!)
-                {
+        <GenericList MyList="categories">
+            <Body>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Categoría</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var category in categories!)
+                        {
 
-                    <tr>
-                        <td>
-                            <a class="btn btn-warning" href="/categories/edit/@category.Id">Editar</a>
-                            <button class="btn btn-danger" @onclick=@(()=>DeleteAsync(category.Id))>Borrar</button>
-                        </td>
-                        <td>
-                            @category.Name
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </Body>
-</GenericList>
-
-
+                            <tr>
+                                <td>
+                                    <a class="btn btn-warning" href="/categories/edit/@category.Id">Editar</a>
+                                    <button class="btn btn-danger" @onclick=@(()=>DeleteAsync(category.Id))>Borrar</button>
+                                </td>
+                                <td>
+                                    @category.Name
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </Body>
+        </GenericList>
 
 
-@code {
-    public List<Category>? categories { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadAsync();
-    }
 
-    private async Task LoadAsync()
-    {
-        var responseHttp = await repository.Get<List<Category>>("/api/categories");
-        categories = responseHttp.Response;
-    }
+        @code {
+            public List<Category>? categories { get; set; }
 
-    private async Task DeleteAsync(int id)
-    {
-        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
-        {
-            Title = "Confirmación",
-            Text = "¿Realmente deseas eliminar el registro?",
-            Icon = SweetAlertIcon.Question,
-            ShowCancelButton = true,
-            ConfirmButtonText = "Si",
-            CancelButtonText = "No"
-
-        });
-        var confirm = string.IsNullOrEmpty(result.Value);
-        if (confirm)
-        {
-            return;
-        }
-
-        var responseHTTP = await repository.Delete($"/api/categories/{id}");
-        if (responseHTTP.Error)
-        {
-            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            protected override async Task OnInitializedAsync()
             {
-                var message = await responseHTTP.GetErrorMessageAsync();
-                await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-                return;
+                await LoadAsync();
+            }
+
+            private async Task LoadAsync()
+            {
+                var responseHttp = await repository.Get<List<Category>>("/api/categories");
+                categories = responseHttp.Response;
+            }
+
+            private async Task DeleteAsync(int id)
+            {
+                var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Confirmación",
+                    Text = "¿Realmente deseas eliminar el registro?",
+                    Icon = SweetAlertIcon.Question,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Si",
+                    CancelButtonText = "No"
+
+                });
+                var confirm = string.IsNullOrEmpty(result.Value);
+                if (confirm)
+                {
+                    return;
+                }
+
+                var responseHTTP = await repository.Delete($"/api/categories/{id}");
+                if (responseHTTP.Error)
+                {
+                    if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+                    {
+                        var message = await responseHTTP.GetErrorMessageAsync();
+                        await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                        return;
+                    }
+                }
+
+                await LoadAsync();
+
             }
         }
-
-        await LoadAsync();
-
-    }
-}
 
