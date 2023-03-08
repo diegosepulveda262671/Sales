@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Sales.Shared.Entities;
 
 namespace Sales.API.Data
@@ -11,12 +12,78 @@ namespace Sales.API.Data
             _context = context;
               
         }
-
+         
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
-            await CheckCountriesAsync();
+           // await CheckCountriesAsync();
             await CheckCategoriesAsync();
+            await countries();
+        }
+
+        private async Task countries()
+        {
+            List<json.Country> countries = json.FactoryCountries.GetCountries();
+            List<json.State> states = json.FactoryCountries.GetStates();
+            List<json.City> cities = json.FactoryCountries.GetCities();
+            List<Country> listCounties = new List<Country>();
+
+            if (!_context.Countries.Any())
+            {
+                foreach (json.Country country in countries)
+                {
+                    List<State> states1 = new List<State>();
+                    foreach (json.State state in states)
+                    {
+
+                        if (country.id == state.id_country)
+                        {
+                            List<City> cities1 = new List<City>();
+                            foreach (json.City city in cities)
+                            {
+                                if (state.id == city.id_state)
+                                {
+
+                                    cities1.Add(new City { Name = city.name, StateId = city.id_state });
+                                   
+                                }
+
+                            }
+
+                            if (cities1.Count() > 0)
+                            {
+                                Console.WriteLine("State " + state.name + " cities :" + cities1.Count());
+                                states1.Add(new State { Name = state.name, CountryId = state.id_country, Cities = cities1 });
+                            }
+
+                        }
+
+                    }
+
+                    Console.WriteLine("country " + country.name + " states :" + states1.Count());
+
+                    if (states1.Count() > 0)
+                    {
+                        try
+                        {
+                            _context.Countries.Add(new Country { Name = country.name, States = states1 });
+                            await _context.SaveChangesAsync();
+                        }
+                        catch (DbUpdateException ex)
+                        {
+                            Console.WriteLine("Error " + ex.InnerException!.Message);
+                        }
+                          
+                        
+                       
+                    }
+
+                  
+
+                }
+
+            }
+           
         }
 
         private async Task CheckCountriesAsync()

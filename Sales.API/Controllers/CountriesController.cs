@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Data;
+using Sales.API.Helpers;
 using Sales.Shared.Entities;
+using Sales.Shared.DTOs;
 
 namespace Sales.API.Controllers
 {
@@ -17,12 +19,21 @@ namespace Sales.API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAsync()
+		public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
 		{
-			return Ok(await _context.Countries.Include(x=>x.States).ToListAsync());
+            var queryable = _context.Countries.Include(x => x.States);
+
+            return Ok(await queryable.OrderBy(x=>x.Name).Paginate(pagination).ToListAsync());
 		}
 
-       
+        [HttpGet("totalPages")]
+        public async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var queryable = _context.Countries.AsQueryable();
+            double count = await queryable.CountAsync();
+            double totalPages =  Math.Ceiling(count/pagination.RecordsNumber);
+            return Ok(totalPages);
+        }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync(int id)
