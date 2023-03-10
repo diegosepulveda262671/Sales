@@ -4,7 +4,7 @@
         @foreach (var link in Links)
         {
             <li @onclick=@(() => InternalSelectedPage(link)) style="cursor: pointer" class="page-item @(link.Enable ? null : "disabled") @(link.Enable ? "active" : null)">
-                <a class="page-link">@link.Text</a>
+                <a style="@(!link.Text.Contains("Anterior") && !link.Text.Contains("Siguiente")?"min-width: 45px;":null )" class="page-link @(!link.Text.Contains("Anterior") && !link.Text.Contains("Siguiente")?"linkPagination":null )">@link.Text</a>
             </li>
         }
     </ul>
@@ -31,8 +31,10 @@
             Enable = previousLinkEnable
         });
 
+
+
         int from = CurrentPage <= Radio ? 1 : CurrentPage - Radio+1;
-        int to = CurrentPage <= Radio ? Radio : CurrentPage < TotalPages? CurrentPage: TotalPages;
+        int to = CurrentPage <= Radio ? (TotalPages<Radio? TotalPages :Radio) : (CurrentPage < TotalPages? CurrentPage: TotalPages);
 
         for (int i = from; i <= to; i++)
         {
