@@ -1,0 +1,66 @@
+﻿@page "/categories/edit/{Id:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertSservice
+
+<h3>Editar Categoría</h3>
+
+@if (category is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <CategoryForm @ref="categoryForm" Category="category" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+
+@code {
+
+    private CategoryForm? categoryForm;
+
+    private Category? category;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Category>($"/api/categories/{Id}");
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/categories");
+                return;
+
+            }
+            var message = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertSservice.FireAsync("Error", message, SweetAlertIcon.Error);
+
+        }
+
+        category = responseHTTP.Response;
+
+    }
+
+
+    private async Task EditAsync()
+    {
+        var responseHTTP = await repository.Put("/api/categories", category);
+        if (responseHTTP.Error)
+        {
+            var message = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertSservice.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        Return();
+    }
+    private void Return()
+    {
+        categoryForm!.FormPostedSuccessFully = true;
+        navigationManager.NavigateTo("/categories");
+    }
+
+}
+

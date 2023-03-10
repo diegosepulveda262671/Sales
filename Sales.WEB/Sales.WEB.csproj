@@ -15,15 +15,19 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.2" PrivateAssets="all" />
+    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="repositories\" />
     <None Remove="Pages\Countries\" />
+    <None Remove="CurrieTechnologies.Razor.SweetAlert2" />
+    <None Remove="Pages\Categories\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="repositories\" />
     <Folder Include="Pages\Countries\" />
+    <Folder Include="Pages\Categories\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sales.Shared\Sales.Shared.csproj">

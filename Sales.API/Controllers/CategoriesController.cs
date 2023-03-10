@@ -6,48 +6,50 @@ using Sales.Shared.Entities;
 
 namespace Sales.API.Controllers
 {
-	[ApiController]
-	[Route("/api/countries")]
-	public class CountriesController : ControllerBase
-	{
-		private readonly DataContext _context;
-		public CountriesController(DataContext context)
-		{
-			_context = context;
-		}
 
-		[HttpGet]
-		public async Task<IActionResult> GetAsync()
-		{
-			return Ok(await _context.Countries.ToListAsync());
-		}
+    [ApiController]
+    [Route("/api/categories")]
+    public class CategoriesController : ControllerBase
+	{
+		
+      private readonly DataContext _context;
+        public CategoriesController(DataContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
+        {
+            return Ok(await _context.Categories.ToListAsync());
+        }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-			var country = await _context.Countries.FirstOrDefaultAsync(x=>x.Id==id);
-			if(country is null)
-			{
-				return NotFound();
-			}
-            return Ok(country);
+            var category = await _context.Categories.FirstOrDefaultAsync(x => x.Id == id);
+            if (category is null)
+            {
+                return NotFound();
+            }
+            return Ok(category);
         }
 
 
         [HttpPost]
-		public async Task<ActionResult> Save(Country country)
-		{
+        public async Task<ActionResult> Save(Category category)
+        {
             try
             {
-                _context.Add(country);
+                _context.Add(category);
                 await _context.SaveChangesAsync();
-                return Ok(country);
+                return Ok(category);
             }
-            catch(DbUpdateException ex)
+            catch (DbUpdateException ex)
             {
                 if (ex.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un país con el mismo nombre");
+                    return BadRequest("Ya existe una categoria con el mismo nombre");
                 }
 
                 return BadRequest(ex.InnerException.Message);
@@ -56,22 +58,22 @@ namespace Sales.API.Controllers
             {
                 return BadRequest(ex.InnerException!.Message);
             }
-		}
+        }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(Country country)
+        public async Task<ActionResult> PutAsync(Category category)
         {
             try
             {
-                _context.Update(country);
+                _context.Update(category);
                 await _context.SaveChangesAsync();
-                return Ok(country);
+                return Ok(category);
             }
             catch (DbUpdateException ex)
             {
                 if (ex.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un país con el mismo nombre");
+                    return BadRequest("Ya existe una categoria con el mismo nombre");
                 }
 
                 return BadRequest(ex.InnerException.Message);
@@ -85,18 +87,20 @@ namespace Sales.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var country = await _context.Countries.FirstOrDefaultAsync(x => x.Id == id);
-            if (country is null)
+            var category = await _context.Categories.FirstOrDefaultAsync(x => x.Id == id);
+            if (category is null)
             {
                 return NotFound();
             }
 
-            _context.Remove(country);
+            _context.Remove(category);
             await _context.SaveChangesAsync();
             return NoContent();
 
-           
+
         }
     }
 }
+	
+
 
