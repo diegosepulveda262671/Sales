@@ -1,0 +1,42 @@
+﻿@page "/cities/create/{stateId:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Ciudad</h3>
+
+<CityForm @ref="cityForm" city="city" OnValidSubmit="Create" ReturnAction="Return" />
+
+@code {
+    private City city = new();
+    private CityForm? cityForm;
+
+    [Parameter]
+    public int stateId { get; set; }
+
+
+
+    private async Task Create()
+    {
+        city.StateId = stateId;
+
+        var responseHTTP = await repository.Post("/api/cities", city);
+
+        if (responseHTTP.Error)
+        {
+            var message = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        Return();
+    }
+
+    private void Return()
+    {
+        cityForm!.FormPostedSuccessFully = true;
+        navigationManager.NavigateTo($"/states/details/{stateId}");
+    }
+
+}
+
