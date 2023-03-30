@@ -97,6 +97,9 @@ void SeedData(WebApplication app)
     }
 }
 
+
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

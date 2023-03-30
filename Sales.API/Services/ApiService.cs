@@ -51,7 +51,7 @@ namespace Sales.API.Services
                 return new Response
                 {
                     IsSuccess = false,
-                    Message = ex.Message
+                    Message = ex.Message  
                 };
             }
         }

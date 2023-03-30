@@ -3,7 +3,7 @@
         @foreach (var link in Links)
         {
             <li @onclick=@(() => InternalSelectedPage(link)) style="cursor: pointer" class="page-item @(link.Enable ? null : "disabled") @(link.Enable ? "active" : null)">
-                <a class="page-link">@link.Text</a>
+                <a style="min-width: 45px;" class="page-link">@link.Text</a>
             </li>
         }
     </ul>
@@ -31,55 +31,39 @@
         Links = new List<PageModel>();
         var previousLinkEnable = CurrentPage != 1;
         var previousLinkPage = CurrentPage - 1;
-
         Links.Add(new PageModel
+        {
+            Text = "Anterior",
+            Page = previousLinkPage,
+            Enable = previousLinkEnable
+        });
+
+
+
+        int from = CurrentPage <= Radio ? 1 : CurrentPage - Radio + 1;
+        int to = CurrentPage <= Radio ? (TotalPages < Radio ? TotalPages : Radio) : (CurrentPage < TotalPages ? CurrentPage : TotalPages);
+
+        for (int i = from; i <= to; i++)
+        {
+
+            Links.Add(new PageModel
             {
-                Text = "Anterior",
-                Page = previousLinkPage,
-                Enable = previousLinkEnable
+                Page = i,
+                Enable = CurrentPage == i,
+                Text = $"{i}"
             });
 
-        for (int i = 1; i <= TotalPages; i++)
-        {
-            if (TotalPages <= Radio)
-            {
-                Links.Add(new PageModel
-                    {
-                        Page = i,
-                        Enable = CurrentPage == i,
-                        Text = $"{i}"
-                    });
-            }
-
-            if (TotalPages > Radio && i <= Radio && CurrentPage <= Radio)
-            {
-                Links.Add(new PageModel
-                    {
-                        Page = i,
-                        Enable = CurrentPage == i,
-                        Text = $"{i}"
-                    });
-            }
-
-            if (CurrentPage > Radio && i > CurrentPage - Radio && i <= CurrentPage)
-            {
-                Links.Add(new PageModel
-                    {
-                        Page = i,
-                        Enable = CurrentPage == i,
-                        Text = $"{i}"
-                    });
-            }
         }
 
-        var linkNextEnable = CurrentPage != TotalPages;
-        var linkNextPage = CurrentPage != TotalPages ? CurrentPage + 1 : CurrentPage;
+        var linkNextEnable = CurrentPage < TotalPages;
+        var linkNextPage = CurrentPage < TotalPages ? CurrentPage + 1 : CurrentPage;
         Links.Add(new PageModel
-            {
-                Text = "Siguiente",
-                Page = linkNextPage,
-                Enable = linkNextEnable
-            });
+        {
+            Text = "Siguiente",
+            Page = linkNextPage,
+            Enable = linkNextEnable
+        });
+
     }
 
     class PageModel
