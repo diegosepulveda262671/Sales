@@ -1,65 +1,62 @@
-﻿@page "/cities/edit/{cityId:int}"
+﻿@page "/cities/edit/{CityId:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
-@inject SweetAlertService sweetAlertSservice
+@inject SweetAlertService sweetAlertService
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Editar Ciudad</h3>
 
-@if (city is null) 
+@if (city is null)
 {
-    <p>Cargando...</p>
+    <div class="spinner"/>
 }
 else
 {
-    <CityForm @ref="CityForm" city="city" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <CityForm @ref="cityForm" City="city" OnValidSubmit="EditAsync" ReturnAction="Return" />
 }
 
-
 @code {
-
-    private CityForm? CityForm;
-
     private City? city;
+    private CityForm? cityForm;
 
     [Parameter]
-    public int cityId { get; set; }
+    public int CityId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<City>($"/api/cities/{cityId}");
-        if (responseHTTP.Error)
+        var responseHttp = await repository.Get<City>($"/api/cities/{CityId}");
+        if (responseHttp.Error)
         {
-            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            if (responseHttp.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("/states");
+                navigationManager.NavigateTo("/countries");
                 return;
-
             }
-            var message = await responseHTTP.GetErrorMessageAsync();
-            await sweetAlertSservice.FireAsync("Error", message, SweetAlertIcon.Error);
 
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
         }
 
-        city = responseHTTP.Response;
-
+        city = responseHttp.Response;
     }
-
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("/api/cities", city);
-        if (responseHTTP.Error)
+        var responseHttp = await repository.Put("/api/cities", city);
+        if (responseHttp.Error)
         {
-            var message = await responseHTTP.GetErrorMessageAsync();
-            await sweetAlertSservice.FireAsync("Error", message, SweetAlertIcon.Error);
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
+
         Return();
     }
+
     private void Return()
     {
-        CityForm!.FormPostedSuccessFully = true;
-        navigationManager.NavigateTo($"/states/details/{city?.StateId}");
+        cityForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/states/details/{city!.StateId}");
     }
-
 }

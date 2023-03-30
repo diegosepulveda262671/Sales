@@ -1,10 +1,10 @@
-﻿namespace Sales.Mobile;
-
-public partial class AppShell : Shell
+﻿namespace Sales.Mobile
 {
-	public AppShell()
-	{
-		InitializeComponent();
-	}
+    public partial class AppShell : Shell
+    {
+        public AppShell()
+        {
+            InitializeComponent();
+        }
+    }
 }
-

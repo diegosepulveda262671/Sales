@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Data;
@@ -8,15 +9,25 @@ using Sales.Shared.Entities;
 
 namespace Sales.API.Controllers
 {
-	[ApiController]
-	[Route("/api/cities")]
-	public class Citiescontroller: ControllerBase
-	{
-		
+    [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("/api/cities")]
+    public class CitiesController : ControllerBase
+    {
         private readonly DataContext _context;
-        public Citiescontroller(DataContext context)
+
+        public CitiesController(DataContext context)
         {
             _context = context;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("combo/{stateId:int}")]
+        public async Task<ActionResult> GetCombo(int stateId)
+        {
+            return Ok(await _context.Cities
+                .Where(x => x.StateId == stateId)
+                .ToListAsync());
         }
 
         [HttpGet]
@@ -30,7 +41,6 @@ namespace Sales.API.Controllers
             {
                 queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
-
 
             return Ok(await queryable
                 .OrderBy(x => x.Name)
@@ -51,29 +61,25 @@ namespace Sales.API.Controllers
                 queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
-
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
         }
 
-
-
-
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var country = await _context.Cities.FirstOrDefaultAsync(x => x.Id == id);
-            if (country is null)
+            var city = await _context.Cities.FirstOrDefaultAsync(x => x.Id == id);
+            if (city == null)
             {
                 return NotFound();
             }
-            return Ok(country);
+
+            return Ok(city);
         }
 
-
         [HttpPost]
-        public async Task<ActionResult> Save(City city)
+        public async Task<ActionResult> PostAsync(City city)
         {
             try
             {
@@ -81,18 +87,18 @@ namespace Sales.API.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(city);
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException dbUpdateException)
             {
-                if (ex.InnerException!.Message.Contains("duplicate"))
+                if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe una ciudad con el mismo nombre");
+                    return BadRequest("Ya existe una ciudad con el mismo nombre.");
                 }
 
-                return BadRequest(ex.InnerException.Message);
+                return BadRequest(dbUpdateException.Message);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return BadRequest(ex.InnerException!.Message);
+                return BadRequest(exception.Message);
             }
         }
 
@@ -105,18 +111,18 @@ namespace Sales.API.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(city);
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException dbUpdateException)
             {
-                if (ex.InnerException!.Message.Contains("duplicate"))
+                if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe una ciudad con el mismo nombre");
+                    return BadRequest("Ya existe una ciudad con el mismo nombre.");
                 }
 
-                return BadRequest(ex.InnerException.Message);
+                return BadRequest(dbUpdateException.Message);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return BadRequest(ex.InnerException!.Message);
+                return BadRequest(exception.Message);
             }
         }
 
@@ -124,7 +130,7 @@ namespace Sales.API.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var city = await _context.Cities.FirstOrDefaultAsync(x => x.Id == id);
-            if (city is null)
+            if (city == null)
             {
                 return NotFound();
             }
@@ -132,9 +138,6 @@ namespace Sales.API.Controllers
             _context.Remove(city);
             await _context.SaveChangesAsync();
             return NoContent();
-
-
         }
     }
 }
-

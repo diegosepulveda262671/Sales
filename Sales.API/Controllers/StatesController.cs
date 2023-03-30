@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Data;
@@ -8,17 +9,26 @@ using Sales.Shared.Entities;
 
 namespace Sales.API.Controllers
 {
-	[ApiController]
-	[Route("/api/states")]
-	public class StatesController: ControllerBase
-	{
-		private readonly DataContext _context;
-		public StatesController(DataContext context)
-		{
-			_context = context;
-		}
+    [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("/api/states")]
+    public class StatesController : ControllerBase
+    {
+        private readonly DataContext _context;
 
+        public StatesController(DataContext context)
+        {
+            _context = context;
+        }
 
+        [AllowAnonymous]
+        [HttpGet("combo/{countryId:int}")]
+        public async Task<ActionResult> GetCombo(int countryId)
+        {
+            return Ok(await _context.States
+                .Where(x => x.CountryId == countryId)
+                .ToListAsync());
+        }
         [HttpGet]
         public async Task<ActionResult> Get([FromQuery] PaginationDTO pagination)
         {
@@ -31,7 +41,6 @@ namespace Sales.API.Controllers
             {
                 queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
-
 
             return Ok(await queryable
                 .OrderBy(x => x.Name)
@@ -51,30 +60,27 @@ namespace Sales.API.Controllers
                 queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
-
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
         }
 
-
-
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var state = await _context.States.Include(x=>x.Cities).FirstOrDefaultAsync(x => x.Id == id);
-            if (state is null)
+            var state = await _context.States
+                .Include(x => x.Cities)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (state == null)
             {
                 return NotFound();
             }
+
             return Ok(state);
         }
 
- 
-
-
         [HttpPost]
-        public async Task<ActionResult> Save(State state)
+        public async Task<ActionResult> PostAsync(State state)
         {
             try
             {
@@ -82,18 +88,18 @@ namespace Sales.API.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(state);
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException dbUpdateException)
             {
-                if (ex.InnerException!.Message.Contains("duplicate"))
+                if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un estado con el mismo nombre");
+                    return BadRequest("Ya existe un estado/departamento con el mismo nombre.");
                 }
 
-                return BadRequest(ex.InnerException.Message);
+                return BadRequest(dbUpdateException.Message);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return BadRequest(ex.InnerException!.Message);
+                return BadRequest(exception.Message);
             }
         }
 
@@ -106,18 +112,18 @@ namespace Sales.API.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(state);
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException dbUpdateException)
             {
-                if (ex.InnerException!.Message.Contains("duplicate"))
+                if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un estado/departamento con el mismo nombre");
+                    return BadRequest("Ya existe un estado/departamento con el mismo nombre.");
                 }
 
-                return BadRequest(ex.InnerException.Message);
+                return BadRequest(dbUpdateException.Message);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return BadRequest(ex.InnerException!.Message);
+                return BadRequest(exception.Message);
             }
         }
 
@@ -125,7 +131,7 @@ namespace Sales.API.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var state = await _context.States.FirstOrDefaultAsync(x => x.Id == id);
-            if (state is null)
+            if (state == null)
             {
                 return NotFound();
             }
@@ -133,10 +139,6 @@ namespace Sales.API.Controllers
             _context.Remove(state);
             await _context.SaveChangesAsync();
             return NoContent();
-
-
         }
     }
 }
-
-

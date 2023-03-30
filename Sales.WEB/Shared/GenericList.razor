@@ -1,40 +1,34 @@
-﻿
+﻿@typeparam Titem
 
-@typeparam Titem
-
-@if (MyList is null)
+@if(MyList is null)
 {
-    @if (Loading is null)
+    @if(Loading is null)
     {
-        <div class="align-items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Loading_2.gif?20170503175831" />
-        </div>
+        <div class="spinner" />
     }
     else
     {
         @Loading
     }
 }
-else if (MyList.Count == 0)
+else if(MyList.Count == 0)
 {
-    @if (NoRecords is null)
+    @if(NoRecords is null)
     {
         <div class="align-items-center">
-            <p>No hay registros para mostrar</p>
+            <p>No hay registros para mostrar.</p>
         </div>
     }
     else
     {
         @NoRecords
     }
-
-
-
 }
 else
 {
     @Body
 }
+
 
 @code {
     [Parameter]
@@ -50,6 +44,4 @@ else
     [Parameter]
     [EditorRequired]
     public List<Titem> MyList { get; set; } = null!;
-
 }
-

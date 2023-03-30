@@ -1,15 +1,13 @@
 ﻿<nav>
     <ul class="pagination">
-
         @foreach (var link in Links)
         {
             <li @onclick=@(() => InternalSelectedPage(link)) style="cursor: pointer" class="page-item @(link.Enable ? null : "disabled") @(link.Enable ? "active" : null)">
-                <a style="@(!link.Text.Contains("Anterior") && !link.Text.Contains("Siguiente")?"min-width: 45px;":null )" class="page-link @(!link.Text.Contains("Anterior") && !link.Text.Contains("Siguiente")?"linkPagination":null )">@link.Text</a>
+                <a style="min-width: 45px;" class="page-link">@link.Text</a>
             </li>
         }
     </ul>
 </nav>
-
 
 @code {
     [Parameter] public int CurrentPage { get; set; } = 1;
@@ -18,10 +16,19 @@
     [Parameter] public EventCallback<int> SelectedPage { get; set; }
     List<PageModel> Links = new();
 
+    private async Task InternalSelectedPage(PageModel pageModel)
+    {
+        if (pageModel.Page == CurrentPage || pageModel.Page == 0)
+        {
+            return;
+        }
+
+        await SelectedPage.InvokeAsync(pageModel.Page);
+    }
+
     protected override void OnParametersSet()
     {
         Links = new List<PageModel>();
-
         var previousLinkEnable = CurrentPage != 1;
         var previousLinkPage = CurrentPage - 1;
         Links.Add(new PageModel
@@ -33,8 +40,8 @@
 
 
 
-        int from = CurrentPage <= Radio ? 1 : CurrentPage - Radio+1;
-        int to = CurrentPage <= Radio ? (TotalPages<Radio? TotalPages :Radio) : (CurrentPage < TotalPages? CurrentPage: TotalPages);
+        int from = CurrentPage <= Radio ? 1 : CurrentPage - Radio + 1;
+        int to = CurrentPage <= Radio ? (TotalPages < Radio ? TotalPages : Radio) : (CurrentPage < TotalPages ? CurrentPage : TotalPages);
 
         for (int i = from; i <= to; i++)
         {
@@ -49,7 +56,7 @@
         }
 
         var linkNextEnable = CurrentPage < TotalPages;
-        var linkNextPage = CurrentPage < TotalPages?CurrentPage + 1: CurrentPage;
+        var linkNextPage = CurrentPage < TotalPages ? CurrentPage + 1 : CurrentPage;
         Links.Add(new PageModel
         {
             Text = "Siguiente",
@@ -59,17 +66,6 @@
 
     }
 
-    private async Task InternalSelectedPage(PageModel pageModel)
-    {
-        if (pageModel.Page == CurrentPage || pageModel.Page == 0)
-        {
-            return;
-        }
-
-        await SelectedPage.InvokeAsync(pageModel.Page);
-    }
-
-
     class PageModel
     {
         public string Text { get; set; } = null!;
@@ -77,6 +73,4 @@
         public bool Enable { get; set; } = true;
         public bool Active { get; set; } = false;
     }
-
 }
-
