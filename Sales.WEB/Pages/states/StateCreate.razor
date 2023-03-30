@@ -1,42 +1,38 @@
-﻿@page "/states/create/{countryId:int}"
+﻿@page "/states/create/{CountryId:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
+@attribute [Authorize(Roles = "Admin")]
 
+<h3>Crear Estado/Departamento</h3>
 
-<h3>Crear Estado/Departemanto</h3>
-
-<StateForm @ref="stateForm" State="state" OnValidSubmit="Create" ReturnAction="Return" />
+<StateForm @ref="stateForm" State="state" OnValidSubmit="CreateAsync" ReturnAction="Return" />
 
 @code {
     private State state = new();
     private StateForm? stateForm;
 
     [Parameter]
-    public int countryId { get; set; }
+    public int CountryId { get; set; }
 
-
-
-    private async Task Create()
+    private async Task CreateAsync()
     {
-        state.CountryId = countryId;
 
-        var responseHTTP = await repository.Post("/api/states", state);
-
-        if (responseHTTP.Error)
+        state.CountryId = CountryId;
+        var httpResponse = await repository.Post("/api/states", state);
+        if (httpResponse.Error)
         {
-            var message = await responseHTTP.GetErrorMessageAsync();
+            var message = await httpResponse.GetErrorMessageAsync();
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
+
         Return();
     }
 
     private void Return()
     {
-        stateForm!.FormPostedSuccessFully = true;
-        navigationManager.NavigateTo($"/countries/details/{countryId}");
+        stateForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/countries/details/{CountryId}");
     }
-
 }
-

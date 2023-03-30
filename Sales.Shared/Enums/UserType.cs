@@ -1,9 +1,8 @@
-﻿using System;
-namespace Sales.Shared.Enums
+﻿namespace Sales.Shared.Enums
 {
-	public enum UserType
-	{
-		Admin,User
-	}
+    public enum UserType
+    {
+        Admin,
+        User
+    }
 }
-

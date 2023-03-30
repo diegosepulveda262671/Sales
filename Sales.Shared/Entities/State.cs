@@ -1,14 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Sales.Shared.Entities
 {
     public class State
     {
-       
-
-       public int Id { get; set; }
+        public int Id { get; set; }
 
         [Display(Name = "Estado/Departamento")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
@@ -21,8 +17,6 @@ namespace Sales.Shared.Entities
 
         public ICollection<City>? Cities { get; set; }
 
-        public int CitiesCount => Cities == null ? 0 : Cities.Count;
-
+        public int CitiesNumber => Cities == null ? 0 : Cities.Count;
     }
 }
-

@@ -1,14 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Sales.Shared.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sales.Shared.Entities
 {
-	public class User:IdentityUser 
-
-	{
+    public class User : IdentityUser
+    {
         [Display(Name = "Documento")]
         [MaxLength(20, ErrorMessage = "El campo {0} debe tener máximo {1} caractéres.")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
@@ -43,7 +40,5 @@ namespace Sales.Shared.Entities
 
         [Display(Name = "Usuario")]
         public string FullName => $"{FirstName} {LastName}";
-
     }
 }
-

@@ -1,4 +1,4 @@
-﻿[Open Iconic v1.1.1](https://github.com/iconic/open-iconic)
+[Open Iconic v1.1.1](https://github.com/iconic/open-iconic)
 ===========
 
 ### Open Iconic is the open source sibling of [Iconic](https://github.com/iconic/open-iconic). It is a hyper-legible collection of 223 icons with a tiny footprint&mdash;ready to use with Bootstrap and Foundation. [View the collection](https://github.com/iconic/open-iconic)
@@ -112,4 +112,3 @@ All code (including SVG markup) is under the [MIT License](http://opensource.org
 ### Fonts
 
 All fonts are under the [SIL Licensed](http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web).
-

@@ -1,66 +1,62 @@
 ﻿@page "/countries/edit/{Id:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
-@inject SweetAlertService sweetAlertSservice
+@inject SweetAlertService sweetAlertService
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Editar País</h3>
 
 @if(country is null)
 {
-        <p>Cargando...</p>
+    <div class="spinner"/>
 }
 else
 {
-        <CountryForm @ref="countryForm" Country="country" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <CountryForm @ref="countryForm" Country="country" OnValidSubmit="EditAsync" ReturnAction="Return"/>
 }
 
-
 @code {
-
-    private CountryForm? countryForm;
-
     private Country? country;
+    private CountryForm? countryForm;
 
     [Parameter]
     public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<Country>($"/api/countries/{Id}");
-        if (responseHTTP.Error)
+        var responseHttp = await repository.Get<Country>($"/api/countries/{Id}");
+        if (responseHttp.Error)
         {
-            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            if (responseHttp.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
                 navigationManager.NavigateTo("/countries");
                 return;
-
             }
-            var message = await responseHTTP.GetErrorMessageAsync();
-            await sweetAlertSservice.FireAsync("Error",message,SweetAlertIcon.Error);
 
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
         }
 
-        country = responseHTTP.Response;
-
+        country = responseHttp.Response;
     }
-
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("/api/countries",country);
-        if (responseHTTP.Error)
+        var responseHttp = await repository.Put("/api/countries", country);
+        if (responseHttp.Error)
         {
-            var message = await responseHTTP.GetErrorMessageAsync();
-            await sweetAlertSservice.FireAsync("Error", message, SweetAlertIcon.Error);
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
+
         Return();
     }
+
     private void Return()
     {
-        countryForm!.FormPostedSuccessFully = true;
+        countryForm!.FormPostedSuccessfully = true;
         navigationManager.NavigateTo("/countries");
     }
-
 }
-
