@@ -4,6 +4,7 @@
 @inject SweetAlertService sweetAlertService
 @attribute [Authorize(Roles = "Admin")]
 
+
 @if (country is null)
 {
     <div class="spinner" />
@@ -14,7 +15,7 @@ else
         <div class="card-header">
             <span>
                 <i class="oi oi-globe"></i> @country.Name
-                <a class="btn btn-sm btn-primary float-end" href="/states/create/@country.Id"><i class="oi oi-plus"></i> Nuevo Estado/Departamento</a>
+                <a @onclick=@(() => ShowModalCreate(@country.Id)) class="btn btn-sm btn-primary float-end" ><i class="oi oi-plus"></i> Nuevo Estado/Departamento</a>
                 <a class="btn btn-sm btn-success float-end mx-2" href="/countries"><i class="oi oi-arrow-thick-left"></i> Regresar</a>
             </span>
         </div>
@@ -55,7 +56,7 @@ else
                                     </td>
                                     <td>
                                         <a href="/states/details/@state.Id" class="btn btn-info btn-sm"><i class="oi oi-list" /> Detalles</a>
-                                        <a href="/states/edit/@state.Id" class="btn btn-warning btn-sm"><i class="oi oi-pencil" /> Editar</a>
+                                        <a @onclick=@(() => ShowModalEdit(@state.Id)) class="btn btn-warning btn-sm"><i class="oi oi-pencil" /> Editar</a>
                                         <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(state.Id))><i class="oi oi-trash" /> Borrar</button>
                                     </td>
                                 </tr>
@@ -73,6 +74,9 @@ else
     private List<State>? states;
     private int currentPage = 1;
     private int totalPages;
+
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
 
     [Parameter]
     public int Id { get; set; }
@@ -129,14 +133,14 @@ else
     private async Task DeleteAsync(int id)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
-            {
-                Title = "Confirmación",
-                Text = "¿Realmente deseas eliminar el registro?",
-                Icon = SweetAlertIcon.Question,
-                ShowCancelButton = true,
-                CancelButtonText = "No",
-                ConfirmButtonText = "Si"
-            });
+        {
+            Title = "Confirmación",
+            Text = "¿Realmente deseas eliminar el registro?",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            CancelButtonText = "No",
+            ConfirmButtonText = "Si"
+        });
 
         var confirm = string.IsNullOrEmpty(result.Value);
         if (confirm)
@@ -169,5 +173,24 @@ else
         int page = 1;
         await LoadAsync(page);
         await SelectedPageAsync(page);
+    }
+
+    private async Task ShowModalEdit(int id)
+    {
+        IModalReference modalReference;
+        modalReference = Modal.Show<Sales.WEB.Pages.States.StateEdit>(string.Empty, new ModalParameters().Add("StateId", id));
+        var result = await modalReference.Result;
+
+
+        await LoadAsync(currentPage);
+
+    }
+
+    private async Task ShowModalCreate(int id)
+    {
+        IModalReference modalReference;
+        modalReference = Modal.Show<Sales.WEB.Pages.States.StateCreate>(string.Empty, new ModalParameters().Add("CountryId", id));
+        var result = await modalReference.Result;
+        await LoadAsync(currentPage);
     }
 }
